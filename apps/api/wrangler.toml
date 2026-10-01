@@ -1,7 +1,8 @@
 # Cloudflare Pages + Functions + D1 (todo dentro del plan gratuito)
 name = "al-dia"
 compatibility_date = "2025-09-01"
-pages_build_output_dir = "../web/public"
+# Copia de ../web/public generada por `npm run build` (Cloudflare exige que esté dentro de apps/api)
+pages_build_output_dir = "dist"
 
 [[d1_databases]]
 binding = "DB"

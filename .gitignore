@@ -1,6 +1,9 @@
 # Dependencias
 node_modules/
 
+# Estáticos copiados por apps/api/scripts/build.mjs
+apps/api/dist/
+
 # Estado y datos locales de Cloudflare Wrangler
 .wrangler/
 .dev.vars

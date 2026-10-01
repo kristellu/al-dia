@@ -3,7 +3,7 @@
 import globals from 'globals';
 
 export default [
-  { ignores: ['**/node_modules/**', '**/.wrangler/**', 'apps/web/public/vendor/**'] },
+  { ignores: ['**/node_modules/**', '**/.wrangler/**', 'apps/api/dist/**', 'apps/web/public/vendor/**'] },
   {
     files: ['**/*.js', '**/*.mjs'],
     languageOptions: { ecmaVersion: 2022, sourceType: 'module' },

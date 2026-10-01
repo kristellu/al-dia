@@ -10,6 +10,7 @@
   ],
   "scripts": {
     "dev": "npm run dev -w @al-dia/api --",
+    "build": "npm run build -w @al-dia/api",
     "deploy": "npm run deploy -w @al-dia/api --",
     "db:create": "npm run db:create -w @al-dia/api --",
     "db:migrate": "npm run db:migrate -w @al-dia/api --",

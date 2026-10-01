@@ -33,7 +33,7 @@ al-dia/
 │   │   └── public/                Lo que se publica: index.html, styles.css, _headers, vendor/, js/
 │   │       └── js/                main.js (entrada) + core/ state/ services/ domain/ ui/ views/ forms/ documents/
 │   └── api/                       Backend (@al-dia/api)
-│       ├── wrangler.toml          Proyecto Pages + binding D1 (publica ../web/public)
+│       ├── wrangler.toml          Proyecto Pages + binding D1 (publica dist/, copia de ../web/public)
 │       ├── functions/api/         Rutas de la API (Pages Functions)
 │       ├── src/lib/               Librerías del servidor (HTTP, sesión, contraseñas, SQL, validación)
 │       ├── migrations/            Esquema D1 versionado
@@ -105,7 +105,7 @@ Te pedirá la contraseña (mínimo 10 caracteres, con letras y números) sin mos
 
 **Opción C — Integración Git del dashboard (no verificada con el monorepo).**
 1. En Cloudflare: **Workers & Pages → Create → Pages → Connect to Git**.
-2. Framework: **None**. *Root directory*: **`apps/api`**. Build command: vacío. Output directory: **`../web/public`**.
+2. Framework: **None**. *Root directory*: **`apps/api`**. Build command: **`npm run build`**. Output directory: **`dist`** (copia de `apps/web/public`; Cloudflare no acepta rutas fuera del *Root directory*).
 3. Cloudflare toma el binding `DB` desde `wrangler.toml`. Si no aparece, agrégalo en *Settings → Bindings → D1 database* con el nombre `DB`.
 4. No combines esta opción con GitHub Actions para no desplegar dos veces.
 5. Cuando agregues migraciones nuevas, aplícalas con `npm run db:migrate` antes de hacer push.
