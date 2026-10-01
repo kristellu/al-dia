@@ -1,0 +1,19 @@
+{
+  "name": "@al-dia/api",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "API de Al día: Cloudflare Pages Functions + D1. Sirve también los estáticos de @al-dia/web.",
+  "scripts": {
+    "dev": "wrangler pages dev",
+    "deploy": "wrangler pages deploy",
+    "db:create": "wrangler d1 create al-dia",
+    "db:migrate": "wrangler d1 migrations apply al-dia --remote",
+    "db:migrate:local": "wrangler d1 migrations apply al-dia --local",
+    "user:create": "node scripts/create-user.mjs",
+    "user:create:local": "node scripts/create-user.mjs --local"
+  },
+  "devDependencies": {
+    "wrangler": "4.40.0"
+  }
+}

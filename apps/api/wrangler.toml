@@ -1,7 +1,7 @@
 # Cloudflare Pages + Functions + D1 (todo dentro del plan gratuito)
 name = "al-dia"
 compatibility_date = "2025-09-01"
-pages_build_output_dir = "public"
+pages_build_output_dir = "../web/public"
 
 [[d1_databases]]
 binding = "DB"
