@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="description" content="Control financiero personal por quincenas: cuánto tienes libre, qué debes pagar y si tus finanzas mejoran.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E%F0%9F%AA%99%3C/text%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Al día · mis finanzas por quincena</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,650;12..96,750&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="/vendor/pdfjs/pdf.min.js"></script>
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body class="logged-out">
+<header class="top">
+  <div class="top-in">
+    <div class="brand"><i aria-hidden="true"></i>Al día</div>
+    <div class="monthnav" role="group" aria-label="Mes financiero">
+      <button data-act="prev" id="prevBtn">‹ Agosto</button>
+      <strong id="monthLabel">Septiembre 2026</strong>
+      <button data-act="next" id="nextBtn">Octubre ›</button>
+    </div>
+    <span class="sync" id="sync"></span>
+    <button class="acct" data-act="account" id="acctBtn" aria-label="Mi cuenta">Cuenta</button>
+  </div>
+  <nav class="tabs" aria-label="Secciones">
+    <button data-view="inicio">Inicio</button>
+    <button data-view="movimientos">Movimientos</button>
+    <button data-view="calendario">Calendario</button>
+    <button data-view="deudas">Deudas</button>
+    <button data-view="analisis">Análisis</button>
+    <button data-view="usuarios" id="adminTab" hidden>Usuarios</button>
+  </nav>
+</header>
+<main class="wrap" id="app"></main>
+<dialog id="modal"><div id="modalIn"></div></dialog>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="/app.js"></script>
+</body>
+</html>

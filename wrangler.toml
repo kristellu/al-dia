@@ -1,0 +1,11 @@
+# Cloudflare Pages + Functions + D1 (todo dentro del plan gratuito)
+name = "al-dia"
+compatibility_date = "2025-09-01"
+pages_build_output_dir = "public"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "al-dia"
+# Reemplaza con el ID que entrega `npm run db:create`
+database_id = "00000000-0000-0000-0000-000000000000"
+migrations_dir = "migrations"
