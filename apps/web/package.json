@@ -1,0 +1,7 @@
+{
+  "name": "@al-dia/web",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Frontend de Al día: HTML, CSS y módulos ES sin build. Se publica desde public/."
+}

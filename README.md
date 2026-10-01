@@ -7,20 +7,43 @@ Funciona completa dentro del **plan gratuito de Cloudflare**: Pages (sitio), Pag
 ## Arquitectura
 
 ```
-Navegador ──HTTPS──► Cloudflare Pages
-  public/ (HTML, CSS, JS)        └─ functions/api/*  (Pages Functions)
-  Lectura local de PDF (pdf.js)          └─ D1 "al-dia" (SQLite)
+Navegador ──HTTPS──► Cloudflare Pages (un solo proyecto "al-dia")
+  apps/web/public  (HTML, CSS, módulos JS)   └─ apps/api/functions/api/*  (Pages Functions)
+  Lectura local de PDF (pdf.js)                      └─ D1 "al-dia" (SQLite)
 ```
+
+Es un monorepo con **npm workspaces** y dos aplicaciones que se despliegan juntas: `apps/api` contiene el `wrangler.toml` y las Functions, y publica como estáticos la carpeta `apps/web/public`.
 
 | Aspecto | Decisión |
 |---|---|
-| Frontend | HTML + CSS + JS sin framework ni build. Lee PDF en el navegador; los archivos nunca se suben. |
-| API | Pages Functions en `functions/api`. Librerías compartidas en `src/lib`. |
-| Base de datos | D1, esquema versionado en `migrations/`. |
+| Frontend | `apps/web`. HTML + CSS + módulos ES nativos, sin framework ni build. Lee PDF en el navegador; los archivos nunca se suben. |
+| API | `apps/api`. Pages Functions en `functions/api`. Librerías compartidas en `src/lib`. |
+| Base de datos | D1, esquema versionado en `apps/api/migrations/`. |
 | Autenticación | Usuario y contraseña. Hash PBKDF2-SHA256 con sal; sesión en cookie `HttpOnly; Secure; SameSite=Strict`; en la base solo se guarda el hash del token. |
-| Protección | Bloqueo de 15 min tras 5 intentos fallidos; cabecera anti-CSRF obligatoria; CSP estricta (`public/_headers`); cambio de contraseña obligatorio para claves temporales. |
+| Protección | Bloqueo de 15 min tras 5 intentos fallidos; cabecera anti-CSRF obligatoria; CSP estricta (`apps/web/public/_headers`); cambio de contraseña obligatorio para claves temporales. |
 | Retención | Por usuario (`users.retention_months`, por defecto **4**: mes actual y 3 anteriores). Lo más antiguo se borra automáticamente al cargar los datos y la API rechaza escrituras fuera de la ventana. |
 | Sincronización | El navegador envía solo las filas que cambiaron. Cada tipo de dato se escribe con **una** sentencia (`json_each`), así que una sincronización usa ≈10 consultas (el plan gratuito permite 50 por invocación). |
+
+## Estructura del repositorio
+
+```
+al-dia/
+├── apps/
+│   ├── web/                       Frontend (@al-dia/web)
+│   │   └── public/                Lo que se publica: index.html, styles.css, _headers, vendor/, js/
+│   │       └── js/                main.js (entrada) + core/ state/ services/ domain/ ui/ views/ forms/ documents/
+│   └── api/                       Backend (@al-dia/api)
+│       ├── wrangler.toml          Proyecto Pages + binding D1 (publica ../web/public)
+│       ├── functions/api/         Rutas de la API (Pages Functions)
+│       ├── src/lib/               Librerías del servidor (HTTP, sesión, contraseñas, SQL, validación)
+│       ├── migrations/            Esquema D1 versionado
+│       └── scripts/               create-user.mjs
+├── scripts/check.mjs              Sintaxis + importaciones del frontend
+├── eslint.config.js               Detección de identificadores no definidos
+└── package.json                   Workspaces y comandos (delegan en cada app)
+```
+
+Todos los comandos se ejecutan desde la **raíz**; internamente se delegan al workspace que corresponde. Cada app tiene su propio README con el detalle: [apps/web](apps/web/README.md) · [apps/api](apps/api/README.md).
 
 ## Modelo de datos
 
@@ -43,7 +66,7 @@ users ─┬─< sessions
 
 Convenciones: montos en pesos como `INTEGER`; meses `YYYY-MM`; fechas ISO; todas las tablas de negocio incluyen `user_id` en la llave, de modo que un usuario no puede tocar filas de otro.
 
-Para cambiar el esquema, agrega un archivo nuevo (`migrations/0002_lo-que-cambia.sql`) y nunca edites uno ya aplicado.
+Para cambiar el esquema, agrega un archivo nuevo (`apps/api/migrations/0002_lo-que-cambia.sql`) y nunca edites uno ya aplicado.
 
 ## Puesta en marcha
 
@@ -60,7 +83,7 @@ npx wrangler login
 npm run db:create
 ```
 
-Copia el `database_id` que aparece y pégalo en `wrangler.toml`.
+Copia el `database_id` que aparece y pégalo en `apps/api/wrangler.toml`.
 
 ```bash
 npm run db:migrate
@@ -76,19 +99,19 @@ Te pedirá la contraseña (mínimo 10 caracteres, con letras y números) sin mos
 
 ### 3. Desplegar
 
-**Opción A — Integración Git (recomendada).**
-1. Sube el proyecto a tu repositorio.
-2. En Cloudflare: **Workers & Pages → Create → Pages → Connect to Git**.
-3. Framework: **None**. Build command: vacío. Output directory: **`public`**.
-4. Cloudflare toma el binding `DB` desde `wrangler.toml`. Si no aparece, agrégalo en *Settings → Bindings → D1 database* con el nombre `DB`.
-5. Borra `.github/workflows/deploy.yml` para no desplegar dos veces.
-6. Cuando agregues migraciones nuevas, aplícalas con `npm run db:migrate` antes de hacer push.
+**Opción A — Manual (recomendada).** `npm run deploy`. Despliega desde `apps/api` las Functions junto con los estáticos de `apps/web/public`. Antes, si hay migraciones nuevas, ejecuta `npm run db:migrate`.
+
+**Opción B — GitHub Actions.** Pendiente: el workflow `.github/workflows/deploy.yml` aún no existe en el repositorio. Cuando se cree, debe ejecutar `npm ci`, `npm run db:migrate` y `npm run deploy` desde la raíz. Crea primero el proyecto con `npx wrangler pages project create al-dia --production-branch main` y configura los secretos `CLOUDFLARE_API_TOKEN` (permisos *Cloudflare Pages: Edit* y *D1: Edit*) y `CLOUDFLARE_ACCOUNT_ID`.
+
+**Opción C — Integración Git del dashboard (no verificada con el monorepo).**
+1. En Cloudflare: **Workers & Pages → Create → Pages → Connect to Git**.
+2. Framework: **None**. *Root directory*: **`apps/api`**. Build command: vacío. Output directory: **`../web/public`**.
+3. Cloudflare toma el binding `DB` desde `wrangler.toml`. Si no aparece, agrégalo en *Settings → Bindings → D1 database* con el nombre `DB`.
+4. No combines esta opción con GitHub Actions para no desplegar dos veces.
+5. Cuando agregues migraciones nuevas, aplícalas con `npm run db:migrate` antes de hacer push.
 
 > Las vistas previas de ramas usan la misma base de datos que producción. Si vas a probar cambios de esquema, crea una base aparte para pruebas.
 
-**Opción B — GitHub Actions.** Usa `.github/workflows/deploy.yml`. Aplica las migraciones y despliega en cada push a `main`. Crea primero el proyecto con `npx wrangler pages project create al-dia --production-branch main` y configura los secretos `CLOUDFLARE_API_TOKEN` (permisos *Cloudflare Pages: Edit* y *D1: Edit*) y `CLOUDFLARE_ACCOUNT_ID`.
-
-**Opción C — Manual.** `npm run deploy`.
 
 ## Desarrollo local
 
@@ -98,7 +121,14 @@ npm run user:create:local -- --username prueba --name "Prueba" --role admin
 npm run dev            # http://localhost:8788
 ```
 
-La base local vive en `.wrangler/` y no afecta producción.
+La base local vive en `apps/api/.wrangler/` y no afecta producción.
+
+Antes de subir cambios:
+
+```bash
+npm run check          # sintaxis de todo el JS + importaciones entre módulos del frontend
+npm run lint           # identificadores no definidos (error) o sin uso (advertencia)
+```
 
 ## Administrar usuarios
 
@@ -155,4 +185,4 @@ El hash de contraseña usa 60.000 iteraciones para respetar el límite de CPU de
 
 ## Licencias
 
-pdf.js: Apache License 2.0 (`public/vendor/pdfjs/LICENSE`).
+pdf.js: Apache License 2.0 (`apps/web/public/vendor/pdfjs/LICENSE`).
