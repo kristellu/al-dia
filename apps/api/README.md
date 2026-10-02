@@ -8,7 +8,7 @@ Ejecuta los comandos desde la raíz del monorepo (`npm run dev`, `npm run db:mig
 
 | Ruta | Qué es |
 |---|---|
-| `wrangler.toml` | Proyecto Pages `al-dia`, binding `DB` → D1 `al-dia`, `migrations_dir`. |
+| `wrangler.toml` | Proyecto Pages `al-dia`, binding `DB` → D1 `db-aldia`, `migrations_dir`. |
 | `functions/api/_middleware.js` | Antes de cada `/api/*`: anti-CSRF (`X-Requested-With: al-dia`), sesión, cambio de clave obligatorio y rol admin. |
 | `functions/api/auth/` | `login`, `logout`, `me`, `password`. |
 | `functions/api/state.js` | `GET /api/state`: todo el estado del usuario dentro de su ventana de retención (y purga lo antiguo). |

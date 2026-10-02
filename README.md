@@ -9,7 +9,7 @@ Funciona completa dentro del **plan gratuito de Cloudflare**: Pages (sitio), Pag
 ```
 Navegador ──HTTPS──► Cloudflare Pages (un solo proyecto "al-dia")
   apps/web/public  (HTML, CSS, módulos JS)   └─ apps/api/functions/api/*  (Pages Functions)
-  Lectura local de PDF (pdf.js)                      └─ D1 "al-dia" (SQLite)
+  Lectura local de PDF (pdf.js)                      └─ D1 "db-aldia" (SQLite)
 ```
 
 Es un monorepo con **npm workspaces** y dos aplicaciones que se despliegan juntas: `apps/api` contiene el `wrangler.toml` y las Functions, y publica como estáticos la carpeta `apps/web/public`.
@@ -140,7 +140,7 @@ npm run lint           # identificadores no definidos (error) o sin uso (adverte
 
 No puedes quitarte el rol de administrador ni desactivarte a ti misma.
 
-**Desde la consola de D1** (Cloudflare → D1 → al-dia → Console) o con `npx wrangler d1 execute al-dia --remote --command "…"`:
+**Desde la consola de D1** (Cloudflare → D1 → db-aldia → Console) o con `npx wrangler d1 execute db-aldia --remote --command "…"`:
 
 ```sql
 -- Ver usuarios y su configuración

@@ -15,7 +15,7 @@ const args = Object.fromEntries(
     return acc;
   }, [])
 );
-const DB_NAME = args.db || 'al-dia';
+const DB_NAME = args.db || 'db-aldia';
 const target = args.local ? '--local' : '--remote';
 const username = String(args.username || '').trim().toLowerCase();
 const name = String(args.name || username).trim();

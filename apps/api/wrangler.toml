@@ -6,7 +6,6 @@ pages_build_output_dir = "dist"
 
 [[d1_databases]]
 binding = "DB"
-database_name = "al-dia"
-# Reemplaza con el ID que entrega `npm run db:create`
-database_id = "00000000-0000-0000-0000-000000000000"
+database_name = "db-aldia"
+database_id = "d9814bf7-0420-4592-a7d5-b01d02a3f7f5"
 migrations_dir = "migrations"
