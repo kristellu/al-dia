@@ -8,5 +8,7 @@ export async function api(path,{method='GET',body,auth=true}={}){
   let r;try{r=await fetch(path,opt)}catch(e){throw{status:0,message:'No hay conexión con el servidor.'}}
   let d=null;try{d=await r.json()}catch(e){}
   if(!r.ok){if(r.status===401&&auth)onLoggedOut();throw{status:r.status,message:(d&&d.error)||'Error '+r.status}}
-  return d||{};
+  // Toda ruta /api/* responde JSON; si llega otra cosa (p. ej. index.html), las Functions no están desplegadas
+  if(!d)throw{status:502,message:'La API no respondió correctamente. Revisa que las Pages Functions estén desplegadas.'};
+  return d;
 }
