@@ -66,6 +66,7 @@ export function cleanMovement(r) {
     debt_id: kind === 'gasto' ? validId(r.debt_id) : null,
     variable_amount: variable,
     amount_pending: variable ? flag(r.amount_pending) : 0,
+    flagged: kind === 'gasto' ? flag(r.flagged) : 0,
   };
 }
 

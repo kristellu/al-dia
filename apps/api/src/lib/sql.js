@@ -20,17 +20,17 @@ export const UPSERT = {
       kind = excluded.kind, updated_at = excluded.updated_at`,
   movements: `
     INSERT INTO movements (user_id, id, month, kind, name, amount, category, day, quincena, status, paid_on,
-                           recurring, note, income_type, gross, deductions, debt_id, variable_amount, amount_pending, updated_at)
+                           recurring, note, income_type, gross, deductions, debt_id, variable_amount, amount_pending, flagged, updated_at)
     SELECT ?1, ${j('id')}, ${j('month')}, ${j('kind')}, ${j('name')}, ${j('amount')}, ${j('category')}, ${j('day')},
            ${j('quincena')}, ${j('status')}, ${j('paid_on')}, ${j('recurring')}, ${j('note')}, ${j('income_type')},
-           ${j('gross')}, ${j('deductions')}, ${j('debt_id')}, ${j('variable_amount')}, ${j('amount_pending')}, ${NOW}
+           ${j('gross')}, ${j('deductions')}, ${j('debt_id')}, ${j('variable_amount')}, ${j('amount_pending')}, ${j('flagged')}, ${NOW}
       FROM json_each(?2) WHERE 1
     ON CONFLICT (user_id, id) DO UPDATE SET month = excluded.month, kind = excluded.kind, name = excluded.name,
       amount = excluded.amount, category = excluded.category, day = excluded.day, quincena = excluded.quincena,
       status = excluded.status, paid_on = excluded.paid_on, recurring = excluded.recurring, note = excluded.note,
       income_type = excluded.income_type, gross = excluded.gross, deductions = excluded.deductions,
       debt_id = excluded.debt_id, variable_amount = excluded.variable_amount, amount_pending = excluded.amount_pending,
-      updated_at = excluded.updated_at`,
+      flagged = excluded.flagged, updated_at = excluded.updated_at`,
   balances: `
     INSERT INTO debt_balances (user_id, debt_id, month, saldo, minimo, total, fecha_limite, tasa_ea, cupo, cupo_disponible, updated_at)
     SELECT ?1, ${j('debt_id')}, ${j('month')}, ${j('saldo')}, ${j('minimo')}, ${j('total')}, ${j('fecha_limite')},
@@ -54,7 +54,7 @@ export const SELECT_STATE = {
   categories: 'SELECT name, sort_order, budget FROM categories WHERE user_id = ?1 ORDER BY sort_order, name',
   months: 'SELECT month, closed, closed_at, snapshot_json FROM months WHERE user_id = ?1 AND month >= ?2 ORDER BY month',
   movements: `SELECT id, month, kind, name, amount, category, day, quincena, status, paid_on, recurring, note,
-                     income_type, gross, deductions, debt_id, variable_amount, amount_pending
+                     income_type, gross, deductions, debt_id, variable_amount, amount_pending, flagged
                 FROM movements WHERE user_id = ?1 AND month >= ?2 ORDER BY month, quincena, day`,
   debts: 'SELECT id, name, bank, last4, kind FROM debts WHERE user_id = ?1 ORDER BY created_at',
   balances: `SELECT debt_id, month, saldo, minimo, total, fecha_limite, tasa_ea, cupo, cupo_disponible

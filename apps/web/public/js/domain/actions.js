@@ -30,3 +30,7 @@ export function toggle(kind,id){
   else{const i=mo.incomes.find(x=>x.id===id);if(!i)return;i.status=i.status==='recibido'?'pendiente':'recibido'}
   save(); render();
 }
+export function toggleFlag(id){
+  const e=M(state.cur)?.expenses.find(x=>x.id===id); if(!e)return;
+  e.flagged=!e.flagged; save(); render(); toast(e.flagged?`${e.name} marcado con bandera roja`:'Bandera quitada');
+}

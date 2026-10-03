@@ -36,16 +36,18 @@ export function quinCard(q,k){
     </div></article>`;
 }
 
+const FLAG='<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M5 21V4m0 0h11l-2 4 2 4H5"/></svg>';
 export function expRow(e,k,showDate=true){
   const N=daysIn(k), late=e.status!=='pagado'&&((k===TODAY_K&&e.day<TODAY_D)||k<TODAY_K);
   const soon=!late&&e.status!=='pagado'&&k===TODAY_K&&e.day>=TODAY_D&&e.day-TODAY_D<=7;
-  return `<div class="row ${e.status==='pagado'?'done':''}">
+  return `<div class="row has-flag ${e.status==='pagado'?'done':''} ${e.flagged?'flagged':''}">
     <input type="checkbox" class="check" data-toggle="e:${e.id}" ${e.status==='pagado'?'checked':''} aria-label="Marcar ${esc(e.name)} como pagado">
     <div class="clickable" data-act="edit-exp" data-id="${e.id}" style="cursor:pointer">
       <div class="rname">${esc(e.name)}${e.note?`<span class="note" title="${esc(e.note)}" aria-label="Observación: ${esc(e.note)}">i</span>`:''}${late?'<span class="tag late">Vencido</span>':soon?'<span class="tag soon">Pronto</span>':''}${e.toConfirm?'<span class="tag soon">Por confirmar</span>':''}${e.recurring?`<span class="tag">${e.variable?'Mensual · valor variable':'Mensual'}</span>`:''}</div>
       <div class="rmeta">${showDate?(e.day?e.day+' '+MES_C[parseMk(k).m-1]+' · ':''):''}${esc(e.category)}${e.status==='pagado'&&e.paidOn?' · pagado el '+fmtDate(e.paidOn):''}</div>
     </div>
-    <div class="ramt">${e.toConfirm?'<span class="muted small">Por confirmar</span>':fmt(e.amount)}</div></div>`;
+    <div class="ramt">${e.toConfirm?'<span class="muted small">Por confirmar</span>':fmt(e.amount)}</div>
+    <button type="button" class="flagbtn" data-act="flag-exp" data-id="${e.id}" aria-pressed="${!!e.flagged}" aria-label="${e.flagged?'Quitar bandera roja de':'Marcar con bandera roja'} ${esc(e.name)}" title="${e.flagged?'Quitar bandera':'Marcar con bandera roja'}">${FLAG}</button></div>`;
 }
 export function incRow(i,k){
   return `<div class="row ${i.status==='recibido'?'':''}">

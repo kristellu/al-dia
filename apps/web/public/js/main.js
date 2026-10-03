@@ -2,7 +2,7 @@
 import { addM, mLow, mName } from './core/dates.js';
 import { $ } from './core/utils.js';
 import { confirmPayroll, confirmStatement, openUpload, payrollConfirm, statementConfirm } from './documents/upload.js';
-import { closeMonth, prepare, toggle } from './domain/actions.js';
+import { closeMonth, prepare, toggle, toggleFlag } from './domain/actions.js';
 import { loadDemo } from './domain/demo.js';
 import { accountMenu, passwordForm } from './forms/account.js';
 import { budgetsForm } from './forms/budgets.js';
@@ -35,6 +35,7 @@ document.addEventListener('click',e=>{
     case 'edit-exp':expenseForm(id);break;
     case 'add-inc':incomeForm();break;
     case 'edit-inc':incomeForm(id);break;
+    case 'flag-exp':toggleFlag(id);break;
     case 'del-exp':if(confirm('¿Eliminar este gasto?')){mo.expenses=mo.expenses.filter(x=>x.id!==id);save();closeModal();render()}break;
     case 'del-inc':if(confirm('¿Eliminar este ingreso?')){mo.incomes=mo.incomes.filter(x=>x.id!==id);save();closeModal();render()}break;
     case 'prepare':prepare(state.cur);save();render();toast(`${mName(state.cur)} preparado con tus compromisos recurrentes`);break;

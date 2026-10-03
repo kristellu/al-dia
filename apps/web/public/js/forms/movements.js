@@ -10,10 +10,10 @@ import { toast } from '../ui/toast.js';
 
 export function expenseForm(id){
   const mo=ensure(state.cur), e=id?mo.expenses.find(x=>x.id===id):null, N=daysIn(state.cur);
-  const v=e||{name:'',amount:'',category:'Vivienda',day:'',q:1,status:'pendiente',recurring:true,variable:false,note:''};
+  const v=e||{name:'',amount:'',category:'Vivienda',day:'',q:1,status:'pendiente',recurring:true,variable:false,flagged:false,note:''};
   openModal(e?'Editar gasto':'Nuevo gasto',`<form id="f">
     <div class="field"><label for="fn">Nombre del gasto</label><input id="fn" name="name" required placeholder="Ej. Arriendo" value="${esc(v.name)}"></div>
-    <div class="frow"><div class="field"><label for="fa">Valor</label><input id="fa" name="amount" required inputmode="numeric" placeholder="$0" value="${v.amount?fmt(v.amount):''}"></div>
+    <div class="frow"><div class="field"><label for="fa">Valor</label><input id="fa" name="amount" required inputmode="numeric" placeholder="$0" value="${v.amount||(e&&!v.toConfirm)?fmt(v.amount):''}"></div>
     <div class="field"><label for="fd">Día de pago</label><input id="fd" name="day" type="number" min="1" max="${N}" placeholder="1 a ${N}" value="${v.day||''}"></div></div>
     <div class="field"><label for="fc">Categoría</label><select id="fc" name="category">${catOptions(v.category,state.S.categories)}</select></div>
     <div class="field"><span class="flabel">Quincena</span>${segQ(v.q)}</div>
@@ -21,17 +21,19 @@ export function expenseForm(id){
     ${v.toConfirm?`<p class="warnbox small">El valor de este mes está por confirmar. Escríbelo para incluirlo en tus cuentas.</p>`:''}
     <label class="inline-check"><input type="checkbox" class="check" name="recurring" ${v.recurring?'checked':''}> Repetir cada mes</label>
     <label class="inline-check"><input type="checkbox" class="check" name="variable" ${v.variable?'checked':''} ${v.recurring?'':'disabled'}> El valor cambia cada mes <span class="muted small">(al preparar el mes se copia en $0 por confirmar)</span></label>
+    <label class="inline-check"><input type="checkbox" class="check flag-check" name="flagged" ${v.flagged?'checked':''}> Marcar con bandera roja <span class="muted small">(para prestarle especial atención)</span></label>
     <div class="field"><label for="fo">Observaciones (opcional)</label><textarea id="fo" name="note" placeholder="Ej. Última cuota">${esc(v.note||'')}</textarea></div>
     <div class="mactions">${e?'<button type="button" class="btn danger" data-act="del-exp" data-id="'+e.id+'">Eliminar</button><span class="spacer"></span>':''}<button type="button" class="btn" data-act="close-modal">Cancelar</button><button class="btn primary">Guardar gasto</button></div></form>`,
   root=>{const f=root.querySelector('#f');let qTouched=!!e;
-    f.amount.addEventListener('input',()=>{const n=num(f.amount.value);f.amount.value=n?fmt(n):''});
+    // Se acepta $0: solo un campo vacío cuenta como "sin valor"
+    f.amount.addEventListener('input',()=>{const d=f.amount.value.replace(/\D/g,'');f.amount.value=d?fmt(Number(d)):''});
     f.querySelectorAll('[name=q]').forEach(r=>r.addEventListener('change',()=>qTouched=true));
     f.day.addEventListener('input',()=>{const d=+f.day.value;if(d&&!qTouched)f.querySelector(`[name=q][value="${qOf(d)}"]`).checked=true});
     f.recurring.addEventListener('change',()=>{f.variable.disabled=!f.recurring.checked;if(!f.recurring.checked)f.variable.checked=false});
     f.category.addEventListener('change',()=>{if(f.category.value==='__new'){const n=(prompt('Nombre de la nueva categoría')||'').trim();if(n){if(!state.S.categories.includes(n))state.S.categories.push(n);f.category.innerHTML=catOptions(n,state.S.categories)}else f.category.value=v.category}});
-    f.addEventListener('submit',ev=>{ev.preventDefault();const amount=num(f.amount.value);if(!amount){f.amount.focus();return}
+    f.addEventListener('submit',ev=>{ev.preventDefault();if(!f.amount.value.trim()){f.amount.focus();return}const amount=num(f.amount.value);
       const day=Math.min(Math.max(+f.day.value||0,0),N)||null;
-      const data={name:f.name.value.trim(),amount,category:f.category.value,day,q:+f.querySelector('[name=q]:checked').value,status:f.querySelector('[name=status]:checked').value,recurring:f.recurring.checked,variable:f.recurring.checked&&f.variable.checked,toConfirm:false,note:f.note.value.trim()};
+      const data={name:f.name.value.trim(),amount,category:f.category.value,day,q:+f.querySelector('[name=q]:checked').value,status:f.querySelector('[name=status]:checked').value,recurring:f.recurring.checked,variable:f.recurring.checked&&f.variable.checked,toConfirm:false,flagged:f.flagged.checked,note:f.note.value.trim()};
       if(e){if(data.status==='pagado'&&e.status!=='pagado')data.paidOn=isoToday();if(data.status!=='pagado')data.paidOn=null;Object.assign(e,data)}
       else mo.expenses.push({id:newId(),...data,paidOn:data.status==='pagado'?isoToday():null});
       save();closeModal();render();toast(e?'Gasto actualizado':'Gasto agregado')});

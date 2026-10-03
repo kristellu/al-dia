@@ -8,12 +8,13 @@ import { expRow, incRow } from '../ui/components.js';
 export function vMov(){
   const k=state.cur, mo=M(k), s=stats(k);
   const inc=[...mo.incomes].sort((a,b)=>a.q-b.q||(a.day||0)-(b.day||0));
-  const ex=[...mo.expenses].sort((a,b)=>(a.day||99)-(b.day||99));
-  const showI=state.movFilter!=='gastos', showE=state.movFilter!=='ingresos';
+  const onlyFlag=state.movFilter==='bandera';
+  const ex=mo.expenses.filter(e=>!onlyFlag||e.flagged).sort((a,b)=>(a.day||99)-(b.day||99));
+  const showI=state.movFilter==='todos'||state.movFilter==='ingresos', showE=state.movFilter!=='ingresos';
   const fl=(v,l)=>`<button class="chip" aria-pressed="${state.movFilter===v}" data-filter="${v}">${l}</button>`;
   return `<section class="hero" style="padding-bottom:0"><div class="block-head"><h1 style="font-size:2rem">Movimientos de ${mLow(k)}</h1>
     <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-act="add-inc">Agregar ingreso</button><button class="btn primary" data-act="add-exp">Agregar gasto</button></div></div>
-    <div class="filters">${fl('todos','Todos')}${fl('ingresos','Ingresos')}${fl('gastos','Gastos')}</div></section>
+    <div class="filters">${fl('todos','Todos')}${fl('ingresos','Ingresos')}${fl('gastos','Gastos')}${fl('bandera','Con bandera')}</div></section>
   ${showI?`<section class="block" style="margin-top:12px"><div class="block-head"><h2>Ingresos</h2><span class="muted small">${fmt(s.rec)} recibido · ${fmt(s.pendI)} por recibir</span></div>
     <div class="list">${inc.length?inc.map(i=>incRow(i,k)).join(''):`<div class="empty">Sin ingresos registrados. <button class="btn ghost" data-act="upload-payroll">Cargar comprobante</button></div>`}</div></section>`:''}
   ${showE?`<section class="block"><div class="block-head"><h2>Gastos</h2><span class="muted small">${fmt(s.paid)} pagado · ${fmt(s.pend)} pendiente</span></div>
