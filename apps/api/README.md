@@ -1,6 +1,6 @@
 # @al-dia/api — Backend
 
-Cloudflare Pages Functions + D1. Este directorio es la **raíz del proyecto Pages**: aquí viven `wrangler.toml` y `functions/`. Los estáticos del frontend se copian de `../web/public` a `dist/` con `npm run build` (Cloudflare exige que la salida esté dentro de `apps/api`); `npm run deploy` lo hace automáticamente.
+Cloudflare Pages Functions + D1. Este directorio es la **raíz del proyecto Pages**: aquí viven `wrangler.toml` y `functions/`. `npm run build` arma `dist/`: copia los estáticos de `../web/public` (Cloudflare exige que la salida esté dentro de `apps/api`) y compila `functions/` a `dist/_worker.js` con `_routes.json` limitado a `/api/*`, porque el build de Pages no detecta `functions/` con este Root directory. `npm run deploy` lo hace automáticamente.
 
 Ejecuta los comandos desde la raíz del monorepo (`npm run dev`, `npm run db:migrate`, `npm run user:create -- …`). Se delegan a este workspace, así que wrangler corre con `apps/api` como directorio actual.
 

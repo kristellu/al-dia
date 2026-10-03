@@ -105,7 +105,7 @@ Te pedirá la contraseña (mínimo 10 caracteres, con letras y números) sin mos
 
 **Opción C — Integración Git del dashboard (no verificada con el monorepo).**
 1. En Cloudflare: **Workers & Pages → Create → Pages → Connect to Git**.
-2. Framework: **None**. *Root directory*: **`apps/api`**. Build command: **`npm run build`**. Output directory: **`dist`** (copia de `apps/web/public`; Cloudflare no acepta rutas fuera del *Root directory*).
+2. Framework: **None**. *Root directory*: **`apps/api`**. Build command: **`npm run build`**. Output directory: **`dist`** (estáticos de `apps/web/public` + Functions compiladas en `_worker.js`; Cloudflare no acepta rutas fuera del *Root directory* ni detecta `functions/` en esta configuración).
 3. Cloudflare toma el binding `DB` desde `wrangler.toml`. Si no aparece, agrégalo en *Settings → Bindings → D1 database* con el nombre `DB`.
 4. No combines esta opción con GitHub Actions para no desplegar dos veces.
 5. Cuando agregues migraciones nuevas, aplícalas con `npm run db:migrate` antes de hacer push.
