@@ -22,13 +22,15 @@ export function stats(k){
     deudas:sum(mo.expenses.filter(e=>DEBT_CATS.includes(e.category)),e=>e.amount),
     ahorro:sum(mo.expenses.filter(e=>e.category==='Ahorro / inversión'),e=>e.amount),
     pct:totInc?comp/totInc:0, byCat, q,
-    recurring:sum(mo.expenses.filter(e=>e.recurring),e=>e.amount)};
+    recurring:sum(mo.expenses.filter(e=>e.recurring&&!e.variable),e=>e.amount), // sin los de valor variable: cambian por naturaleza
+    toConfirm:mo.expenses.filter(e=>e.toConfirm)};
 }
 export function debtTotal(k){let t=0,any=false;state.S.debts.forEach(d=>{const b=(state.S.balances[d.id]||{})[k];if(b){t+=b.saldo||0;any=true}});return any?t:null}
 export function prevWithData(k){for(let i=1;i<=24;i++){const p=addM(k,-i);if(M(p))return p}return null}
 export function catSum(k,c){const mo=M(k);return mo?sum(mo.expenses.filter(e=>e.category===c),e=>e.amount):null}
 export function insights(k){
   const out=[], s=stats(k), pk=addM(k,-1), ps=M(pk)?stats(pk):null;
+  if(s.toConfirm.length)out.push({tone:'warn',title:s.toConfirm.length===1?'Tienes 1 pago con valor por confirmar':`Tienes ${s.toConfirm.length} pagos con valor por confirmar`,body:`${s.toConfirm.map(e=>e.name).join(', ')}. Mientras no registres el valor, no se descuenta de lo que tienes libre.`});
   if(ps&&ps.recurring>0&&Math.abs(s.recurring-ps.recurring)/ps.recurring>0.04){
     out.push({tone:s.recurring>ps.recurring?'warn':'good',title:s.recurring>ps.recurring?'Tus compromisos recurrentes aumentaron':'Tus compromisos recurrentes bajaron',body:`Pasaron de ${fmtM(ps.recurring)} en ${mLow(pk)} a ${fmtM(s.recurring)} en ${mLow(k)}.`});
   }

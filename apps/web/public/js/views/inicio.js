@@ -42,7 +42,7 @@ export function vInicio(){
   <section class="block"><div class="block-head"><h2>Tus dos quincenas</h2></div>
     <div class="quins">${s.q.map(q=>quinCard(q,k)).join('')}</div></section>
   ${up.length?`<section class="block"><div class="block-head"><h2>${k===TODAY_K?'Próximos 7 días':'Quedó sin pagar'}</h2></div>
-    <div class="upcoming">${up.map(e=>{const late=(k===TODAY_K&&e.day<TODAY_D)||k<TODAY_K;return `<div class="up ${late?'late':''}"><span class="small muted">${late?'Venció el':'Vence el'} ${e.day} de ${mLow(k)}</span><div style="font-weight:500">${esc(e.name)}</div><b>${fmt(e.amount)}</b></div>`}).join('')}</div></section>`:''}
+    <div class="upcoming">${up.map(e=>{const late=(k===TODAY_K&&e.day<TODAY_D)||k<TODAY_K;return `<div class="up ${late?'late':''}"><span class="small muted">${late?'Venció el':'Vence el'} ${e.day} de ${mLow(k)}</span><div style="font-weight:500">${esc(e.name)}</div><b>${e.toConfirm?'Valor por confirmar':fmt(e.amount)}</b></div>`}).join('')}</div></section>`:''}
   <section class="block"><div class="block-head"><h2>Lo que falta pagar</h2><span class="muted small">${pendList.length} pendiente${pendList.length===1?'':'s'} · ${fmt(s.pend)}</span></div>
     <div class="list">${pendList.length?pendList.map(e=>expRow(e,k)).join(''):`<div class="empty">No tienes pagos pendientes en ${mLow(k)}.</div>`}</div></section>
   ${ins.length?`<section class="block"><div class="block-head"><h2>Lo que vale la pena mirar</h2><button class="btn ghost" data-view-go="analisis">Ver análisis</button></div>

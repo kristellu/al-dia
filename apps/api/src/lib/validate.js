@@ -52,6 +52,7 @@ export function cleanMovement(r) {
     ? oneOf(r.status, ['pendiente', 'pagado'])
     : oneOf(r.status, ['pendiente', 'recibido']);
   if (!status) return null;
+  const variable = kind === 'gasto' ? flag(r.variable_amount) : 0;
   return {
     id, month, kind, name, amount, quincena, status,
     category: text(r.category, 60),
@@ -63,6 +64,8 @@ export function cleanMovement(r) {
     gross: kind === 'ingreso' ? int(r.gross) : null,
     deductions: kind === 'ingreso' ? int(r.deductions) : null,
     debt_id: kind === 'gasto' ? validId(r.debt_id) : null,
+    variable_amount: variable,
+    amount_pending: variable ? flag(r.amount_pending) : 0,
   };
 }
 

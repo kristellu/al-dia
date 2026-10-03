@@ -13,8 +13,8 @@ export function flatten(st){
   st.categories.forEach((c,i)=>f.categories[c]={name:c,sort_order:i,budget:st.budgets[c]||null});
   Object.entries(st.months).forEach(([k,m])=>{
     f.months[k]={month:k,closed:m.closed?1:0,closed_at:m.closed&&m.snapshot?m.snapshot.cerradoEl||null:null,snapshot:m.snapshot||null};
-    m.expenses.forEach(e=>f.movements[e.id]={id:e.id,month:k,kind:'gasto',name:e.name,amount:e.amount,category:e.category||null,day:e.day||null,quincena:e.q,status:e.status==='pagado'?'pagado':'pendiente',paid_on:e.status==='pagado'?e.paidOn||null:null,recurring:e.recurring?1:0,note:e.note||null,income_type:null,gross:null,deductions:null,debt_id:e.debtId||null});
-    m.incomes.forEach(i=>f.movements[i.id]={id:i.id,month:k,kind:'ingreso',name:i.name,amount:i.amount,category:i.category||null,day:i.day||null,quincena:i.q,status:i.status==='recibido'?'recibido':'pendiente',paid_on:null,recurring:i.recurring?1:0,note:i.note||null,income_type:i.type==='salario'?'salario':'extra',gross:i.gross||null,deductions:i.deductions||null,debt_id:null});
+    m.expenses.forEach(e=>f.movements[e.id]={id:e.id,month:k,kind:'gasto',name:e.name,amount:e.amount,category:e.category||null,day:e.day||null,quincena:e.q,status:e.status==='pagado'?'pagado':'pendiente',paid_on:e.status==='pagado'?e.paidOn||null:null,recurring:e.recurring?1:0,note:e.note||null,income_type:null,gross:null,deductions:null,debt_id:e.debtId||null,variable_amount:e.variable?1:0,amount_pending:e.variable&&e.toConfirm?1:0});
+    m.incomes.forEach(i=>f.movements[i.id]={id:i.id,month:k,kind:'ingreso',name:i.name,amount:i.amount,category:i.category||null,day:i.day||null,quincena:i.q,status:i.status==='recibido'?'recibido':'pendiente',paid_on:null,recurring:i.recurring?1:0,note:i.note||null,income_type:i.type==='salario'?'salario':'extra',gross:i.gross||null,deductions:i.deductions||null,debt_id:null,variable_amount:0,amount_pending:0});
   });
   st.debts.forEach(d=>f.debts[d.id]={id:d.id,name:d.name,bank:d.bank||null,last4:d.last4||null,kind:d.kind==='credito'?'credito':'tarjeta'});
   Object.entries(st.balances).forEach(([id,bm])=>Object.entries(bm).forEach(([k,b])=>{
@@ -27,7 +27,7 @@ export function fromServer(d){
   d.months.forEach(m=>{let snap=null;try{snap=m.snapshot_json?JSON.parse(m.snapshot_json):null}catch(e){}
     s.months[m.month]={incomes:[],expenses:[],closed:!!m.closed,snapshot:snap}});
   d.movements.forEach(r=>{const m=s.months[r.month];if(!m)return;
-    if(r.kind==='gasto')m.expenses.push({id:r.id,name:r.name,amount:r.amount,category:r.category,day:r.day,q:r.quincena,status:r.status,paidOn:r.paid_on,recurring:!!r.recurring,note:r.note||'',debtId:r.debt_id||undefined});
+    if(r.kind==='gasto')m.expenses.push({id:r.id,name:r.name,amount:r.amount,category:r.category,day:r.day,q:r.quincena,status:r.status,paidOn:r.paid_on,recurring:!!r.recurring,note:r.note||'',debtId:r.debt_id||undefined,variable:!!r.variable_amount,toConfirm:!!r.amount_pending});
     else m.incomes.push({id:r.id,name:r.name,amount:r.amount,type:r.income_type||'extra',category:r.category,day:r.day,q:r.quincena,status:r.status,recurring:!!r.recurring,note:r.note||'',gross:r.gross,deductions:r.deductions})});
   s.debts=d.debts.map(r=>({id:r.id,name:r.name,bank:r.bank||'',last4:r.last4||'',kind:r.kind}));
   d.balances.forEach(b=>{(s.balances[b.debt_id]=s.balances[b.debt_id]||{})[b.month]={saldo:b.saldo,minimo:b.minimo,total:b.total,fecha:b.fecha_limite,tasa:b.tasa_ea,cupo:b.cupo,cupoDisp:b.cupo_disponible}});

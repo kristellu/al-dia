@@ -93,7 +93,7 @@ export function confirmStatement(){
     if(amt){let pk=mes,day=null;if(rec.fecha){const[y,m,dd]=rec.fecha.split('-').map(Number);pk=mk(y,m);day=dd}
       const mo=M(pk)||(prepare(pk),M(pk));
       const ex=mo.expenses.find(e=>e.debtId===d.id&&e.status!=='pagado');
-      const data={name:`Pago ${d.name}`,amount:amt,category:tipo==='tarjeta'?'Tarjetas de crédito':'Créditos y deudas',day,q:day?qOf(day):2,status:'pendiente',recurring:true,note:'',debtId:d.id,paidOn:null};
+      const data={name:`Pago ${d.name}`,amount:amt,category:tipo==='tarjeta'?'Tarjetas de crédito':'Créditos y deudas',day,q:day?qOf(day):2,status:'pendiente',recurring:true,variable:true,toConfirm:false,note:'',debtId:d.id,paidOn:null};
       if(ex)Object.assign(ex,data);else mo.expenses.push({id:newId(),...data});}}
   save();closeModal();render();toast('Extracto guardado');
 }

@@ -10,7 +10,7 @@ import { toast } from '../ui/toast.js';
 
 export function expenseForm(id){
   const mo=ensure(state.cur), e=id?mo.expenses.find(x=>x.id===id):null, N=daysIn(state.cur);
-  const v=e||{name:'',amount:'',category:'Vivienda',day:'',q:1,status:'pendiente',recurring:true,note:''};
+  const v=e||{name:'',amount:'',category:'Vivienda',day:'',q:1,status:'pendiente',recurring:true,variable:false,note:''};
   openModal(e?'Editar gasto':'Nuevo gasto',`<form id="f">
     <div class="field"><label for="fn">Nombre del gasto</label><input id="fn" name="name" required placeholder="Ej. Arriendo" value="${esc(v.name)}"></div>
     <div class="frow"><div class="field"><label for="fa">Valor</label><input id="fa" name="amount" required inputmode="numeric" placeholder="$0" value="${v.amount?fmt(v.amount):''}"></div>
@@ -18,17 +18,20 @@ export function expenseForm(id){
     <div class="field"><label for="fc">Categoría</label><select id="fc" name="category">${catOptions(v.category,state.S.categories)}</select></div>
     <div class="field"><span class="flabel">Quincena</span>${segQ(v.q)}</div>
     <div class="field"><span class="flabel">Estado</span><div class="seg"><label><input type="radio" name="status" value="pendiente" ${v.status!=='pagado'?'checked':''}>Pendiente</label><label><input type="radio" name="status" value="pagado" ${v.status==='pagado'?'checked':''}>Pagado</label></div></div>
+    ${v.toConfirm?`<p class="warnbox small">El valor de este mes está por confirmar. Escríbelo para incluirlo en tus cuentas.</p>`:''}
     <label class="inline-check"><input type="checkbox" class="check" name="recurring" ${v.recurring?'checked':''}> Repetir cada mes</label>
+    <label class="inline-check"><input type="checkbox" class="check" name="variable" ${v.variable?'checked':''} ${v.recurring?'':'disabled'}> El valor cambia cada mes <span class="muted small">(al preparar el mes se copia en $0 por confirmar)</span></label>
     <div class="field"><label for="fo">Observaciones (opcional)</label><textarea id="fo" name="note" placeholder="Ej. Última cuota">${esc(v.note||'')}</textarea></div>
     <div class="mactions">${e?'<button type="button" class="btn danger" data-act="del-exp" data-id="'+e.id+'">Eliminar</button><span class="spacer"></span>':''}<button type="button" class="btn" data-act="close-modal">Cancelar</button><button class="btn primary">Guardar gasto</button></div></form>`,
   root=>{const f=root.querySelector('#f');let qTouched=!!e;
     f.amount.addEventListener('input',()=>{const n=num(f.amount.value);f.amount.value=n?fmt(n):''});
     f.querySelectorAll('[name=q]').forEach(r=>r.addEventListener('change',()=>qTouched=true));
     f.day.addEventListener('input',()=>{const d=+f.day.value;if(d&&!qTouched)f.querySelector(`[name=q][value="${qOf(d)}"]`).checked=true});
+    f.recurring.addEventListener('change',()=>{f.variable.disabled=!f.recurring.checked;if(!f.recurring.checked)f.variable.checked=false});
     f.category.addEventListener('change',()=>{if(f.category.value==='__new'){const n=(prompt('Nombre de la nueva categoría')||'').trim();if(n){if(!state.S.categories.includes(n))state.S.categories.push(n);f.category.innerHTML=catOptions(n,state.S.categories)}else f.category.value=v.category}});
     f.addEventListener('submit',ev=>{ev.preventDefault();const amount=num(f.amount.value);if(!amount){f.amount.focus();return}
       const day=Math.min(Math.max(+f.day.value||0,0),N)||null;
-      const data={name:f.name.value.trim(),amount,category:f.category.value,day,q:+f.querySelector('[name=q]:checked').value,status:f.querySelector('[name=status]:checked').value,recurring:f.recurring.checked,note:f.note.value.trim()};
+      const data={name:f.name.value.trim(),amount,category:f.category.value,day,q:+f.querySelector('[name=q]:checked').value,status:f.querySelector('[name=status]:checked').value,recurring:f.recurring.checked,variable:f.recurring.checked&&f.variable.checked,toConfirm:false,note:f.note.value.trim()};
       if(e){if(data.status==='pagado'&&e.status!=='pagado')data.paidOn=isoToday();if(data.status!=='pagado')data.paidOn=null;Object.assign(e,data)}
       else mo.expenses.push({id:newId(),...data,paidOn:data.status==='pagado'?isoToday():null});
       save();closeModal();render();toast(e?'Gasto actualizado':'Gasto agregado')});

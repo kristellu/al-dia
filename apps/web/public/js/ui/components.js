@@ -42,10 +42,10 @@ export function expRow(e,k,showDate=true){
   return `<div class="row ${e.status==='pagado'?'done':''}">
     <input type="checkbox" class="check" data-toggle="e:${e.id}" ${e.status==='pagado'?'checked':''} aria-label="Marcar ${esc(e.name)} como pagado">
     <div class="clickable" data-act="edit-exp" data-id="${e.id}" style="cursor:pointer">
-      <div class="rname">${esc(e.name)}${e.note?`<span class="note" title="${esc(e.note)}" aria-label="Observación: ${esc(e.note)}">i</span>`:''}${late?'<span class="tag late">Vencido</span>':soon?'<span class="tag soon">Pronto</span>':''}${e.recurring?'<span class="tag">Mensual</span>':''}</div>
+      <div class="rname">${esc(e.name)}${e.note?`<span class="note" title="${esc(e.note)}" aria-label="Observación: ${esc(e.note)}">i</span>`:''}${late?'<span class="tag late">Vencido</span>':soon?'<span class="tag soon">Pronto</span>':''}${e.toConfirm?'<span class="tag soon">Por confirmar</span>':''}${e.recurring?`<span class="tag">${e.variable?'Mensual · valor variable':'Mensual'}</span>`:''}</div>
       <div class="rmeta">${showDate?(e.day?e.day+' '+MES_C[parseMk(k).m-1]+' · ':''):''}${esc(e.category)}${e.status==='pagado'&&e.paidOn?' · pagado el '+fmtDate(e.paidOn):''}</div>
     </div>
-    <div class="ramt">${fmt(e.amount)}</div></div>`;
+    <div class="ramt">${e.toConfirm?'<span class="muted small">Por confirmar</span>':fmt(e.amount)}</div></div>`;
 }
 export function incRow(i,k){
   return `<div class="row ${i.status==='recibido'?'':''}">

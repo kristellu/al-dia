@@ -60,7 +60,7 @@ users ─┬─< sessions
 | `sessions` | `token_hash` | Sesiones activas (14 días, renovación automática). |
 | `categories` | `user_id + name` | Categorías de gasto, orden y presupuesto mensual opcional. |
 | `months` | `user_id + month` | Mes financiero (`YYYY-MM`), si está cerrado y la fotografía del cierre. |
-| `movements` | `user_id + id` | Ingresos (`kind='ingreso'`) y gastos (`kind='gasto'`): valor, categoría, día, quincena, estado, recurrente, observación. En nómina guarda devengado y deducciones como dato informativo. |
+| `movements` | `user_id + id` | Ingresos (`kind='ingreso'`) y gastos (`kind='gasto'`): valor, categoría, día, quincena, estado, recurrente, observación. Un gasto recurrente puede marcarse con **valor variable** (`variable_amount`): al preparar el mes siguiente se copia con todos sus datos pero en $0 y **por confirmar** (`amount_pending`) hasta que se registre su valor o se cargue el extracto. En nómina guarda devengado y deducciones como dato informativo. |
 | `debts` | `user_id + id` | Tarjetas y créditos. **Solo últimos 4 dígitos** (restricción en la base). |
 | `debt_balances` | `user_id + debt_id + month` | Saldo, pago mínimo y total, fecha límite, tasa E.A., cupo. |
 
@@ -103,10 +103,10 @@ Te pedirá la contraseña (mínimo 10 caracteres, con letras y números) sin mos
 
 **Opción B — GitHub Actions.** Pendiente: el workflow `.github/workflows/deploy.yml` aún no existe en el repositorio. Cuando se cree, debe ejecutar `npm ci`, `npm run db:migrate` y `npm run deploy` desde la raíz. Crea primero el proyecto con `npx wrangler pages project create al-dia --production-branch main` y configura los secretos `CLOUDFLARE_API_TOKEN` (permisos *Cloudflare Pages: Edit* y *D1: Edit*) y `CLOUDFLARE_ACCOUNT_ID`.
 
-**Opción C — Integración Git del dashboard (no verificada con el monorepo).**
-1. En Cloudflare: **Workers & Pages → Create → Pages → Connect to Git**.
-2. Framework: **None**. *Root directory*: **`apps/api`**. Build command: **`npm run build`**. Output directory: **`dist`** (estáticos de `apps/web/public` + Functions compiladas en `_worker.js`; Cloudflare no acepta rutas fuera del *Root directory* ni detecta `functions/` en esta configuración).
-3. Cloudflare toma el binding `DB` desde `wrangler.toml`. Si no aparece, agrégalo en *Settings → Bindings → D1 database* con el nombre `DB`.
+**Opción C — Integración Git del dashboard (la que usa producción).**
+1. En Cloudflare: **Workers & Pages → Create → Pages → Connect to Git**. Rama de producción: `production`.
+2. Framework: **None**. *Root directory*: **vacío** (raíz del repo). Build command: **`npm run build`**. Output directory: **`apps/api/dist`** (estáticos de `apps/web/public` + Functions compiladas en `_worker.js`). No uses `apps/api` como *Root directory*: con esa opción Cloudflare publica los estáticos pero no las Functions.
+3. Como `wrangler.toml` no está en la raíz, Cloudflare toma la configuración del dashboard: agrega en *Settings → Bindings* una **D1 database** con el nombre `DB` → `db-aldia`, y en *Runtime* la *Compatibility date* `2025-09-01`.
 4. No combines esta opción con GitHub Actions para no desplegar dos veces.
 5. Cuando agregues migraciones nuevas, aplícalas con `npm run db:migrate` antes de hacer push.
 

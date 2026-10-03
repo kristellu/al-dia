@@ -17,7 +17,7 @@ export function loadDemo(){
     mo.incomes.push({id:newId(),name:'Nómina segunda quincena',amount:7100000,type:'salario',category:'Salario',day:N,q:2,status:cm&&TODAY_D<N?'pendiente':'recibido',recurring:true,note:''});
     if(off===-2)mo.incomes.push({id:newId(),name:'Proyecto freelance',amount:1200000,type:'extra',category:'Freelance',day:22,q:2,status:'recibido',recurring:false,note:''});
     base.forEach(([n,a,c,d,debt])=>{let amt=a;if(c==='Entretenimiento')amt=[300000,340000,360000,520000][ix];if(c==='Tarjetas de crédito')amt=[2300000,2200000,2100000,2100000][ix];
-      const paid=!cm||d<TODAY_D-1; mo.expenses.push({id:newId(),name:n,amount:amt,category:c,day:d,q:qOf(d),status:paid?'pagado':'pendiente',paidOn:paid?mkk+'-'+String(Math.min(d,N)).padStart(2,'0'):null,recurring:c!=='Entretenimiento',note:n==='Cuota del carro'&&off===0?'Faltan 18 cuotas':'',debtId:debt||undefined})});
+      const paid=!cm||d<TODAY_D-1; mo.expenses.push({id:newId(),name:n,amount:amt,category:c,day:d,q:qOf(d),status:paid?'pagado':'pendiente',paidOn:paid?mkk+'-'+String(Math.min(d,N)).padStart(2,'0'):null,recurring:c!=='Entretenimiento',variable:!!debt,note:n==='Cuota del carro'&&off===0?'Faltan 18 cuotas':'',debtId:debt||undefined})});
     state.S.months[mkk]=mo;
     const bal={d1:[9200000,8200000,7400000,6600000],d2:[4400000,4100000,3700000,3300000],d3:[26900000,26150000,25350000,24550000]};
     for(const id in bal){state.S.balances[id]=state.S.balances[id]||{};state.S.balances[id][mkk]={saldo:bal[id][ix],minimo:id==='d3'?890000:Math.round(bal[id][ix]*0.08),fecha:mkk+'-20'}}
